@@ -1,0 +1,130 @@
+﻿@model VibeResume.Models.ResumeViewModel
+
+@{
+    ViewData["Title"] = "CV Önizleme";
+}
+
+<div class="container mt-4">
+    <div class="alert alert-info shadow-sm">
+        <h4 class="alert-heading">✨ AI Senin İçin Vibe Kattı!</h4>
+        <p>Aşağıdaki metinler iş tanımına göre optimize edildi. Onaylıyorsan PDF'ini oluşturabilirsin.</p>
+    </div>
+
+    <div class="card p-5 shadow bg-white" id="cv-preview">
+
+        <h2 class="text-center">@Model.FullName</h2>
+        <h4 class="text-center text-primary">@Model.JobTitle</h4>
+        <p class="text-center text-muted">@Model.Email | @Model.Phone | @Model.Address</p>
+        <p class="text-center">
+            <a href="@Model.LinkedInUrl">LinkedIn</a> | <a href="@Model.GitHubUrl">GitHub</a>
+        </p>
+
+        <hr />
+        @* --- YENİ: Özet (Hakkımda) Eklendi --- *@
+        @if (!string.IsNullOrEmpty(Model.Summary))
+        {
+            <div class="mb-4">
+                <p class="fst-italic text-secondary">@Model.Summary</p>
+            </div>
+            <hr />
+        }
+
+        <h4>Deneyimler</h4>
+        @foreach (var exp in Model.Experiences)
+        {
+            <div class="mb-3">
+                <strong>@exp.CompanyName</strong> - <em>@exp.JobTitle</em> <span class="float-end">@exp.Duration</span>
+                <p>• @exp.AIProfessionalSummary</p>
+            </div>
+        }
+
+        <hr />
+
+        <h4>Projeler</h4>
+        @foreach (var proj in Model.Projects)
+        {
+            <div class="mb-3">
+                <strong>@proj.Title</strong> | <small>@proj.TechStack</small>
+                <p>• @proj.AIProfessionalStory</p>
+            </div>
+        }
+    </div>
+
+    <div class="text-center mt-4 mb-5">
+        <a asp-action="Create" class="btn btn-outline-secondary btn-lg me-2">Geri Dön ve Düzenle</a>
+
+        @* PDF İndirme Formu - Eski butonun yerine burayı yapıştır *@
+        <form asp-action="DownloadPdf" method="post" style="display:inline;">
+            <input type="hidden" asp-for="FullName" />
+            <input type="hidden" asp-for="Email" />
+            <input type="hidden" asp-for="Phone" />
+            <input type="hidden" asp-for="Address" />
+            <input type="hidden" asp-for="LinkedInUrl" />
+            <input type="hidden" asp-for="GitHubUrl" />
+            <input type="hidden" asp-for="JobTitle" />
+            <input type="hidden" asp-for="Summary" />
+            <input type="hidden" asp-for="Skills" />
+            <input type="hidden" asp-for="TechnicalSkills" />
+            <input type="hidden" asp-for="CvLanguage" />
+
+
+            @for (int i = 0; i < Model.Experiences.Count; i++)
+            {
+                <input type="hidden" name="Experiences[@i].CompanyName" value="@Model.Experiences[i].CompanyName" />
+                <input type="hidden" name="Experiences[@i].JobTitle" value="@Model.Experiences[i].JobTitle" />
+                <input type="hidden" name="Experiences[@i].Duration" value="@Model.Experiences[i].Duration" />
+                <input type="hidden" name="Experiences[@i].AIProfessionalSummary" value="@Model.Experiences[i].AIProfessionalSummary" />
+                @* --- YENİ EKLENEN TARİH GİZLİ İNPUTLARI --- *@
+                <input type="hidden" name="Experiences[@i].StartDate" value="@Model.Experiences[i].StartDate" />
+                <input type="hidden" name="Experiences[@i].EndDate" value="@Model.Experiences[i].EndDate" />
+                <input type="hidden" name="Experiences[@i].IsCurrent" value="@Model.Experiences[i].IsCurrent.ToString()" />
+
+                @* Controller'da birleştirip hazırladığımız o temiz tarih metni *@
+                <input type="hidden" name="Experiences[@i].Duration" value="@Model.Experiences[i].Duration" />
+                <input type="hidden" name="Experiences[@i].AIProfessionalSummary" value="@Model.Experiences[i].AIProfessionalSummary" />
+
+
+            }
+
+            @for (int i = 0; i < Model.Projects.Count; i++)
+            {
+                <input type="hidden" name="Projects[@i].Title" value="@Model.Projects[i].Title" />
+                <input type="hidden" name="Projects[@i].TechStack" value="@Model.Projects[i].TechStack" />
+                <input type="hidden" name="Projects[@i].AIProfessionalStory" value="@Model.Projects[i].AIProfessionalStory" />
+            }
+            @for (int i = 0; i < Model.Educations.Count; i++)
+            {
+                <input type="hidden" name="Educations[@i].SchoolName" value="@Model.Educations[i].SchoolName" />
+                <input type="hidden" name="Educations[@i].Department" value="@Model.Educations[i].Department" />
+                <input type="hidden" name="Educations[@i].Degree" value="@Model.Educations[i].Degree" />
+     @* <-- BUNU EKLE *@
+                <input type="hidden" name="Educations[@i].GraduationYear" value="@Model.Educations[i].GraduationYear" />
+
+            }
+
+            @for (int i = 0; i < Model.TotalSoftSkills?.Count; i++)
+            {
+                <input type="hidden" name="TotalSoftSkills[@i]" value="@Model.TotalSoftSkills[i]" />
+            }
+            @for (int i = 0; i < Model.Languages?.Count; i++)
+            {
+                <input type="hidden" name="Languages[@i]" value="@Model.Languages[i]" />
+            }
+
+            @for (int i = 0; i < Model.Certificates?.Count; i++)
+            {
+                <input type="hidden" name="Certificates[@i].Name" value="@Model.Certificates[i].Name" />
+                <input type="hidden" name="Certificates[@i].Url" value="@Model.Certificates[i].Url" />
+            }
+
+            <button type="submit" class="btn btn-success btn-lg">ATS Uyumlu PDF İndir</button>
+        </form>
+        <form asp-action="GenerateCoverLetter" method="post" style="display:inline;">
+            <input type="hidden" asp-for="FullName" />
+            <input type="hidden" asp-for="JobTitle" />
+            <input type="hidden" asp-for="Summary" />
+            <input type="hidden" asp-for="TargetJobDescription" />
+            <input type="hidden" asp-for="CvLanguage" />
+            <button type="submit" class="btn btn-warning btn-lg">✉️ Ön Yazı Oluştur</button>
+        </form>
+    </div>

@@ -1,0 +1,42 @@
+﻿@model List<VibeResume.Models.ResumeHistory>
+
+@{
+    ViewData["Title"] = "CV Geçmişi";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">Oluşturulan CV'ler</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">Henüz oluşturulmuş CV yok.</div>
+    }
+    else
+    {
+        <table class="table table-hover shadow-sm">
+            <thead class="table-dark">
+                <tr>
+                    <th>Ad Soyad</th>
+                    <th>Pozisyon</th>
+                    <th>Tarih</th>
+                    <th>İndir</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.FullName</td>
+                        <td>@item.JobTitle</td>
+                        <td>@item.CreatedAt.ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>
+                            <a href="@item.FilePath" class="btn btn-sm btn-success" download>PDF İndir</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <a asp-action="Create" class="btn btn-primary mt-3">Yeni CV Oluştur</a>
+</div>

@@ -1,0 +1,253 @@
+﻿@model VibeResume.Models.ResumeViewModel
+
+@{
+    ViewData["Title"] = "Yeni CV Projesi";
+}
+
+<div class="container mt-4">
+    <h2 class="text-primary mb-4">Ats Uyumlu Akıllı CV Oluşturucu</h2>
+
+    <form asp-action="Create" method="post" id="resumeForm">
+        <div class="card p-4 shadow-sm mb-4">
+            <h4>Kişisel Bilgiler</h4>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">Ad Soyad</label>
+                    <input asp-for="FullName" class="form-control" placeholder="Örn: Marco Asensio" />
+                </div>
+               
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">LinkedIn URL</label>
+                    <input asp-for="LinkedInUrl" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label">GitHub URL</label>
+                    <input asp-for="GitHubUrl" class="form-control" />
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label>E-posta</label>
+                        <input asp-for="Email" class="form-control" placeholder="halil@example.com" />
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label>Telefon</label>
+                        <input asp-for="Phone" class="form-control" placeholder="05xx xxx xx xx" />
+                    </div>
+                    <div class="col-12 mb-3">
+                        <label>Adres</label>
+                        <input asp-for="Address" class="form-control" placeholder="İskenderun, Hatay" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+            <label class="form-label">Başvurulan Pozisyon / Ünvan</label>
+            <input type="text" asp-for="JobTitle" class="form-control" placeholder="Örn: Biyomedikal Mühendisi veya Junior Back-end Developer" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">CV Dili</label>
+            <select asp-for="CvLanguage" class="form-select">
+                <option value="Türkçe">Türkçe</option>
+                <option value="İngilizce">İngilizce</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Hakkımda / Özet (AI için ipuçları verin)</label>
+            <textarea asp-for="Summary" class="form-control" rows="3" placeholder="Kariyer hedeflerinden ve seni öne çıkaran özelliklerinden kısaca bahset..."></textarea>
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4 border-info">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-info">Eğitim Bilgileri</h4>
+                <button type="button" class="btn btn-outline-info btn-sm" onclick="addEducation()">+ Eğitim Ekle</button>
+            </div>
+            <div id="education-container"></div>
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>İş ve Staj Deneyimleri</h4>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addExperience()">+ Deneyim Ekle</button>
+            </div>
+            <div id="experience-container"></div>
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4>Projelerin</h4>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="addProject()">+ Yeni Proje Ekle</button>
+            </div>
+            <div id="project-container">
+            </div>
+        </div>
+
+
+        <div class="mb-3">
+            <label class="form-label">Teknik Yetenekler</label>
+            <input asp-for="TechnicalSkills" class="form-control" placeholder="C#, .NET Core, MSSQL, Python, Git..." />
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-primary">Yabancı Dil Bilgisi</h4>
+                <button type="button" class="btn btn-outline-primary btn-sm" onclick="addLanguage()">+ Dil Ekle</button>
+            </div>
+            <div id="languages-container">
+                <div class="input-group mb-2">
+                    <input type="text" name="Languages[0]" class="form-control" placeholder="Örn: İngilizce - B1 (Intermediate)" />
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="text-success">Sertifikalar & Referanslar</h4>
+                <button type="button" class="btn btn-outline-success btn-sm" onclick="addCertificate()">+ Belge Ekle</button>
+            </div>
+            <div id="certificates-container">
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label text-muted small">Belge Adı</label>
+                        <input type="text" name="Certificates[0].Name" class="form-control" placeholder="Örn: TNC Group - Bilişim Stajı Referans Mektubu" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <label class="form-label text-muted small">LinkedIn (Veya PDF) Linki</label>
+                        <input type="url" name="Certificates[0].Url" class="form-control" placeholder="https://linkedin.com/posts/..." />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card p-4 shadow-sm mb-4">
+            <h4>Hedef İş Tanımı (Analiz İçin)</h4>
+            <p class="text-muted small">Yapay zeka, projelerini buradaki beklentilere göre yorumlayacak.</p>
+            <textarea asp-for="TargetJobDescription" class="form-control" rows="6" placeholder="LinkedIn iş ilanını buraya yapıştırın..."></textarea>
+        </div>
+
+        <div class="text-center mb-5">
+            <button type="submit" class="btn btn-primary" onclick="this.innerHTML='Yapay Zeka Yazıyor... ⏳'; this.style.pointerEvents='none';">Vibe Kat</button>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    <script>
+        // Sayfa yüklendiğinde sayaçları sıfırla
+        let projectIndex = 0;
+        let expIndex = 0;
+
+        // Proje Ekleme Fonksiyonu
+        function addProject() {
+            const container = document.getElementById("project-container");
+            const html = `
+                <div class="project-item border rounded p-3 mb-3 bg-light shadow-sm">
+                    <input type="text" name="Projects[${projectIndex}].Title" class="form-control mb-2" placeholder="Proje Başlığı" required />
+                    <input type="text" name="Projects[${projectIndex}].TechStack" class="form-control mb-2" placeholder="Teknolojiler (C#, SQL...)" />
+                    <textarea name="Projects[${projectIndex}].UserStory" class="form-control" rows="2" placeholder="Neler yaptın?"></textarea>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            projectIndex++;
+        }
+
+
+               let eduIndex = 0;
+        function addEducation() {
+            const container = document.getElementById("education-container");
+            const html = `
+                <div class="education-item border rounded p-3 mb-3 bg-white shadow-sm">
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label class="form-label text-muted small">Okul Adı</label>
+                            <input type="text" name="Educations[${eduIndex}].SchoolName" class="form-control" placeholder="Dokuz Eylül Üni." />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label text-muted small">Bölüm</label>
+                            <input type="text" name="Educations[${eduIndex}].Department" class="form-control" placeholder="Bilgisayar Prog." />
+                        </div>
+                        <div class="col-md-3 mb-2">
+                            <label class="form-label text-muted small">Derece</label>
+                            <input type="text" name="Educations[${eduIndex}].Degree" class="form-control" placeholder="Ön Lisans" />
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <label class="form-label text-muted small">Mezuniyet Yılı</label>
+                            <input type="text" name="Educations[${eduIndex}].GraduationYear" class="form-control" placeholder="2023-2025" />
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            eduIndex++;
+        }
+
+
+        // Deneyim Ekleme Fonksiyonu
+        // Deneyim Ekleme Fonksiyonu (Tarih Alanlarıyla Birlikte Güncellendi)
+        function addExperience() {
+            const container = document.getElementById("experience-container");
+            const html = `
+                <div class="experience-item border rounded p-3 mb-3 bg-white shadow-sm">
+                    <div class="row">
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-muted small">Şirket Adı</label>
+                            <input type="text" name="Experiences[${expIndex}].CompanyName" class="form-control" placeholder="Örn: Lunea Ajans" />
+                        </div>
+                        <div class="col-md-6 mb-2">
+                            <label class="form-label text-muted small">Pozisyon</label>
+                            <input type="text" name="Experiences[${expIndex}].JobTitle" class="form-control" placeholder="Örn: Back-end Developer" />
+                        </div>
+
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label text-muted small">Başlangıç Tarihi</label>
+                            <input type="month" name="Experiences[${expIndex}].StartDate" class="form-control" />
+                        </div>
+                        <div class="col-md-5 mb-3">
+                            <label class="form-label text-muted small">Bitiş Tarihi</label>
+                            <input type="month" name="Experiences[${expIndex}].EndDate" class="form-control" />
+                        </div>
+                        <div class="col-md-2 mb-3 d-flex align-items-end">
+                            <div class="form-check mb-2">
+                                <input type="checkbox" name="Experiences[${expIndex}].IsCurrent" class="form-check-input" value="true" />
+                                <label class="form-check-label small">Devam Ediyor</label>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label text-muted small">Neler Yaptın? (AI için detaylar)</label>
+                            <textarea name="Experiences[${expIndex}].Description" class="form-control" rows="2" placeholder="Kullandığın teknolojiler, çözdüğün problemler..."></textarea>
+                        </div>
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            expIndex++;
+        }
+        let langIndex = 1;
+        function addLanguage() {
+            const container = document.getElementById("languages-container");
+            const html = `
+                <div class="input-group mb-2">
+                    <input type="text" name="Languages[${langIndex}]" class="form-control" placeholder="Yeni Dil Ekle..." />
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            langIndex++;
+        }
+
+        // Sertifikalar için Sayaç ve Fonksiyon
+        let certIndex = 1;
+        function addCertificate() {
+            const container = document.getElementById("certificates-container");
+            const html = `
+                <div class="row mb-3">
+                    <div class="col-md-6 mb-2">
+                        <input type="text" name="Certificates[${certIndex}].Name" class="form-control" placeholder="Yeni Belge Adı" />
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <input type="url" name="Certificates[${certIndex}].Url" class="form-control" placeholder="Link" />
+                    </div>
+                </div>`;
+            container.insertAdjacentHTML('beforeend', html);
+            certIndex++;
+        }
+    </script>
+}
